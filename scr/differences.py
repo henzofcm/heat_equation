@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 LENGTH = 10
 TEMPERATURE_START = 100
@@ -30,24 +30,43 @@ def find_solution(diff_matrix, first_vector, time):
     # Self descriptive: finds the eigenvalues and eigenvectors
     eigenvalues, eigenvectors = np.linalg.eig(diff_matrix)
 
-    # Prepares the output vector, the constants used and the e's
-    output_vector = np.zeros(LENGTH)
+    # Prepares the constants [S^(-1) * x]
     constants = np.dot(np.linalg.inv(eigenvectors), first_vector)
+
+    # The e's with eigenvalue * time in the exponent
     flow = np.exp(eigenvalues) ** time
 
-    # Calculates each output state de facto
+    # Calculates output state de facto
     output_vector = np.dot(eigenvectors, flow * constants)
 
     return output_vector
 
 
-def plot_image():
-    pass
+def plot_image(vector):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.set_title("Heat equation", fontsize=15)
+    ax.set_ylabel("Temperature °C", fontsize=14)
+    ax.set_xlabel("X axis", fontsize=14)
+    
+    ax.set(xlim=[0, LENGTH + 1], ylim=[0, TEMPERATURE_START + 20])
+
+    # Just adds the start and the end parts that have 0 °C
+    buff = np.append(0, vector)
+    buff = np.append(buff, 0)
+
+    # Plot it
+    ax.plot(buff)
+
+    # Saves and show it
+    fig.savefig("heat_diff.png")
+    plt.show()
 
 
 if __name__ == "__main__":
     D = create_difference_matrix()
     u = create_first_vector()
     
-    out = find_solution(D, u, 3)
-    print(out)
+    out = find_solution(D, u, 0)
+    plot_image(out)
