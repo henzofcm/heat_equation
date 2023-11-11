@@ -2,16 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as ant
 
-LENGTH = 10 - 1
+LENGTH = 10
 DX = 0.01
 N = int(LENGTH / DX)
+
 TOTAL_TIME = 100
 TEMPERATURE_START = 100
+
+ALPHA = 1
 TEMPERATURE_BEGIN = 0
 TEMPERATURE_END = 0
 
 
-def create_difference_matrix():
+def create_difference_matrix(case="open"):
     # Creates a temporary array of ones
     temp_array = np.ones(N)
 
@@ -21,13 +24,27 @@ def create_difference_matrix():
     # Concludes the final [1, -2, 1] pattern in the matrix
     matrix += np.diag(temp_array[:-1], 1) + np.diag(temp_array[:-1], -1)
 
-    return matrix / DX**2
+    if case == "closed":
+        matrix[0, 0] = -1
+        matrix[-1, -1] = -1
+
+    return matrix * (ALPHA / DX ** 2)
 
 
-def create_first_vector():
-    # Creates the vector with constant temperature
-    vector = TEMPERATURE_START * np.ones(N)
-
+def create_first_vector(case="constant"):
+    # Creates the vector according to case
+    if case == "sin":
+        vector = np.sin(np.arange(0, LENGTH, DX)) + 1
+        vector *= (TEMPERATURE_START / 2)
+    elif case == "random":
+        vector = np.random.randint(0, TEMPERATURE_START, LENGTH / DX)
+    elif case == "linear":
+        vector = np.linspace(0, 100, N)
+        
+    else:
+        vector = TEMPERATURE_START * np.ones(N)
+    
+    print(vector)
     return vector
 
 
@@ -41,14 +58,21 @@ def prepare_solution(diff_matrix, first_vector):
     return eigenvalues, eigenvectors, constants
 
 
-def find_solution(eigenvalues, eigenvectors, constants, time):
-    # The e's with eigenvalue * time in the exponent
-    flow = np.exp(eigenvalues) ** time
+def find_solution(eigenvalues, eigenvectors, constants, dt):
+    # The e's with eigenvalue * dt in the exponent
+    flow = np.exp(eigenvalues) ** dt
 
-    # Calculates output state de facto
-    output_vector = np.dot(eigenvectors, flow * constants)
+    # Will be used only to lessen calculations
+    temp_flow = np.exp(eigenvalues) ** 0
+    yield temp_flow
 
-    return output_vector
+    # Loops through all time intervals, using the preceding temp_flow
+    # Because of the great property [e^a * e^b = e^(a + b)]
+    for time in np.arange(dt, TOTAL_TIME + dt, dt):
+        temp_flow *= flow
+        output_vector = np.dot(eigenvectors, temp_flow * constants)
+
+        yield output_vector
 
 
 def generate_solutions(diff_matrix, first_vector, dt):
@@ -58,11 +82,9 @@ def generate_solutions(diff_matrix, first_vector, dt):
     # Creates an empty matrix
     output_matrix = np.empty((N + 2, 0))
 
-    # Loops trough all time intervals
-    for time in np.arange(0, TOTAL_TIME + dt, dt):
-        output_vector = find_solution(eigenvalues, eigenvectors, constants, time)
-
-        # Just adds the start and the end parts that have 0 °C
+    # Loops trough all vectors
+    for output_vector in find_solution(eigenvalues, eigenvectors, constants, dt):
+        # Just adds the start and the end parts temperatures
         output_vector = np.append(TEMPERATURE_BEGIN, output_vector)
         output_vector = np.append(output_vector, TEMPERATURE_END)
         
@@ -72,7 +94,7 @@ def generate_solutions(diff_matrix, first_vector, dt):
     return output_matrix
 
 
-def generate_image(matrix):
+def generate_image(matrix, path="..\img\heat_1d_open.png"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -80,6 +102,7 @@ def generate_image(matrix):
     ax.set_ylabel("Temperature °C", fontsize=14)
     ax.set_xlabel("X axis", fontsize=14)
     
+    # Arbitrary parameters for the axis limits
     ax.set(xlim=[0, LENGTH], ylim=[0, TEMPERATURE_START + 20])
 
     # Creates the X axis ticks
@@ -90,11 +113,11 @@ def generate_image(matrix):
         ax.plot(x_vector, matrix[:, time], color="teal")
 
     # Saves and show it
-    fig.savefig("..\img\heat_1d_image.png")
+    fig.savefig(path)
     plt.show()
 
 
-def generate_gif(matrix):
+def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
     line, = ax.plot([], [], lw=2)
@@ -103,38 +126,42 @@ def generate_gif(matrix):
     ax.set_ylabel("Temperature °C", fontsize=14)
     ax.set_xlabel("X axis", fontsize=14)
     
-    ax.set(xlim=[0, LENGTH], ylim=[0, TEMPERATURE_START + 20])
+    # Arbitrary parameters for the axis limits
+    ax.set(xlim=[0, LENGTH], ylim=[TEMPERATURE_END, max(TEMPERATURE_START, TEMPERATURE_BEGIN) + 20])
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH + 2 * DX, DX)
 
     # Creates the text to account for time
     time_template = "time = %.1f s"
-    time_text = ax.text(LENGTH / 20, TEMPERATURE_START + 10, "", transform=ax.transAxes)
+    time_text = ax.text(LENGTH / 2, TEMPERATURE_START + 10, "", horizontalalignment="center")
 
     dt = TOTAL_TIME / matrix.shape[1]
 
     # Function to update the graph plot, used in the animation
-    def animate(k):
-        line.set_data((x_vector, matrix[:, k]))
-        time_text.set_text(time_template % (k * dt))
+    def animate(frame):
+        line.set_data((x_vector, matrix[:, frame]))
+        time_text.set_text(time_template % (frame * dt))
 
         return line, time_text
 
     # Generates the gif
-    animation = ant.FuncAnimation(fig, animate, matrix.shape[1], interval=20)
+    animation = ant.FuncAnimation(fig, animate, frames=matrix.shape[1], interval=200)
     writer = ant.PillowWriter(fps=25)
 
     # Saves it
-    animation.save('..\img\heat_1d_gif.gif', writer=writer)  
+    animation.save(path, writer=writer)
     plt.close()
 
 
 if __name__ == "__main__":
-    D = create_difference_matrix()
-    u = create_first_vector()
+    D = create_difference_matrix("closed")
+    u = create_first_vector("linear")
     
-    out = generate_solutions(D, u, 5)
-    generate_image(out)
+    # Generates the image with dt of 5s
+    out = generate_solutions(D, u, 2)
+    generate_image(out, "..\img\heat_1d_image_BC.png")
+
+    # Generates the gif with dt of 0.1s
     out = generate_solutions(D, u, 0.1)
-    generate_gif(out)
+    generate_gif(out, "..\img\heat_1d_animation_BC.gif")
