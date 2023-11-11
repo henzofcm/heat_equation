@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as ant
 
 LENGTH = 10 - 1
 DX = 0.01
@@ -71,7 +72,7 @@ def generate_solutions(diff_matrix, first_vector, dt):
     return output_matrix
 
 
-def plot_image(matrix):
+def generate_image(matrix):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -89,12 +90,44 @@ def plot_image(matrix):
         ax.plot(x_vector, matrix[:, time], color="teal")
 
     # Saves and show it
-    fig.savefig("..\img\heat_diff.png")
+    fig.savefig("..\img\heat_1d_image.png")
     plt.show()
 
 
-def generate_gif():
-    pass
+def generate_gif(matrix):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6))
+    line, = ax.plot([], [], lw=2)
+
+    ax.set_title("Heat equation", fontsize=15)
+    ax.set_ylabel("Temperature °C", fontsize=14)
+    ax.set_xlabel("X axis", fontsize=14)
+    
+    ax.set(xlim=[0, LENGTH], ylim=[0, TEMPERATURE_START + 20])
+
+    # Creates the X axis ticks
+    x_vector = np.arange(0, LENGTH + 2 * DX, DX)
+
+    # Creates the text to account for time
+    time_template = "time = %.1f s"
+    time_text = ax.text(LENGTH / 20, TEMPERATURE_START + 10, "", transform=ax.transAxes)
+
+    dt = TOTAL_TIME / matrix.shape[1]
+
+    # Function to update the graph plot, used in the animation
+    def animate(k):
+        line.set_data((x_vector, matrix[:, k]))
+        time_text.set_text(time_template % (k * dt))
+
+        return line, time_text
+
+    # Generates the gif
+    animation = ant.FuncAnimation(fig, animate, matrix.shape[1], interval=20)
+    writer = ant.PillowWriter(fps=25)
+
+    # Saves it
+    animation.save('..\img\heat_1d_gif.gif', writer=writer)  
+    plt.close()
 
 
 if __name__ == "__main__":
@@ -102,5 +135,6 @@ if __name__ == "__main__":
     u = create_first_vector()
     
     out = generate_solutions(D, u, 5)
-    print(out.shape)
-    plot_image(out)
+    generate_image(out)
+    out = generate_solutions(D, u, 0.1)
+    generate_gif(out)
