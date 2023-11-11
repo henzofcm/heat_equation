@@ -2,13 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as ant
 
+### Defines the constants related to the LENGTH of the bar
 LENGTH = 10
 DX = 0.01
 N = int(LENGTH / DX)
 
-TOTAL_TIME = 100
+### Defines the constants related to the TIME and the STARTING TEMPERATURE
+TOTAL_TIME = 60
 TEMPERATURE_START = 100
 
+### Sets all the extra constants
 ALPHA = 1
 TEMPERATURE_BEGIN = 0
 TEMPERATURE_END = 0
@@ -35,16 +38,14 @@ def create_first_vector(case="constant"):
     # Creates the vector according to case
     if case == "sin":
         vector = np.sin(np.arange(0, LENGTH, DX)) + 1
-        vector *= (TEMPERATURE_START / 2)
+        vector *= TEMPERATURE_START / 2
     elif case == "random":
-        vector = np.random.randint(0, TEMPERATURE_START, LENGTH / DX)
+        vector = np.random.randint(0, TEMPERATURE_START, N)
     elif case == "linear":
         vector = np.linspace(0, 100, N)
-        
     else:
         vector = TEMPERATURE_START * np.ones(N)
     
-    print(vector)
     return vector
 
 
@@ -62,9 +63,11 @@ def find_solution(eigenvalues, eigenvectors, constants, dt):
     # The e's with eigenvalue * dt in the exponent
     flow = np.exp(eigenvalues) ** dt
 
-    # Will be used only to lessen calculations
+    # Will be used only to lessen future calculations
     temp_flow = np.exp(eigenvalues) ** 0
-    yield temp_flow
+
+    # Yields the first vector, as it won't apper in the loop
+    yield np.dot(eigenvectors, temp_flow * constants)
 
     # Loops through all time intervals, using the preceding temp_flow
     # Because of the great property [e^a * e^b = e^(a + b)]
@@ -94,7 +97,7 @@ def generate_solutions(diff_matrix, first_vector, dt):
     return output_matrix
 
 
-def generate_image(matrix, path="..\img\heat_1d_open.png"):
+def generate_image(matrix, path="..\img\heat_1d_image.png"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -103,7 +106,10 @@ def generate_image(matrix, path="..\img\heat_1d_open.png"):
     ax.set_xlabel("X axis", fontsize=14)
     
     # Arbitrary parameters for the axis limits
-    ax.set(xlim=[0, LENGTH], ylim=[0, TEMPERATURE_START + 20])
+    y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH + 2 * DX, DX)
@@ -112,9 +118,8 @@ def generate_image(matrix, path="..\img\heat_1d_open.png"):
     for time in range(matrix.shape[1]):
         ax.plot(x_vector, matrix[:, time], color="teal")
 
-    # Saves and show it
+    # Saves it
     fig.savefig(path)
-    plt.show()
 
 
 def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
@@ -127,7 +132,10 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     ax.set_xlabel("X axis", fontsize=14)
     
     # Arbitrary parameters for the axis limits
-    ax.set(xlim=[0, LENGTH], ylim=[TEMPERATURE_END, max(TEMPERATURE_START, TEMPERATURE_BEGIN) + 20])
+    y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH + 2 * DX, DX)
@@ -155,13 +163,14 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
 
 
 if __name__ == "__main__":
-    D = create_difference_matrix("closed")
-    u = create_first_vector("linear")
+    # Creates differences matrix and starting vector
+    D = create_difference_matrix()
+    u = create_first_vector()
     
     # Generates the image with dt of 5s
-    out = generate_solutions(D, u, 2)
-    generate_image(out, "..\img\heat_1d_image_BC.png")
+    out = generate_solutions(D, u, 5)
+    generate_image(out)
 
     # Generates the gif with dt of 0.1s
     out = generate_solutions(D, u, 0.1)
-    generate_gif(out, "..\img\heat_1d_animation_BC.gif")
+    generate_gif(out)
