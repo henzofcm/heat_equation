@@ -114,4 +114,4 @@ def generate_gif_2d(temperature):
         plot_heatmap_2d(temperature[k], k*DT_2D)
     
     anim = ant.FuncAnimation(plt.figure(), animate, interval=1, frames=NUMBER_OF_STEPS_2D, repeat=False)
-    anim.save("heat_2d.gif")
+    anim.save("..\img\heat_2d_animation.gif")
