@@ -94,3 +94,24 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     # Saves it
     animation.save(path, writer=writer)
     plt.close()
+
+
+def plot_heatmap_2d(vector, time):
+    grid = vector.reshape(N_2D, N_2D)
+
+    plt.clf()
+
+    plt.title(f"Temperature at t = {time:.2f}")
+
+    plt.pcolormesh(grid, cmap=plt.cm.jet, vmin=0, vmax=100)
+    plt.colorbar()
+
+    return plt
+
+
+def generate_gif_2d(temperature):
+    def animate(k):
+        plot_heatmap_2d(temperature[k], k*DT_2D)
+    
+    anim = ant.FuncAnimation(plt.figure(), animate, interval=1, frames=NUMBER_OF_STEPS_2D, repeat=False)
+    anim.save("heat_2d.gif")
