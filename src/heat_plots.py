@@ -21,6 +21,7 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH + 2 * DX, DX)
+    y_vector = np.arange(0, TOTAL_TIME, matrix.shape[1])
 
     # Plot it through every matrix column
     for time in range(matrix.shape[1]):
@@ -28,6 +29,31 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
 
     # Saves it
     fig.savefig(path)
+
+
+def generate_image_by_time(matrix, path="..\img\heat_1d_image_alternative.png"):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.set_title("Specific points through time", fontsize=15)
+    ax.set_ylabel("Temperature °C", fontsize=14)
+    ax.set_xlabel("Time", fontsize=14)
+    
+    # Arbitrary parameters for the axis limits
+    y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, TOTAL_TIME], ylim=[y_min, y_max + 20])
+
+    # Creates the X axis ticks based on time
+    x_vector = np.linspace(0, TOTAL_TIME + 0.01, matrix.shape[1])
+
+    # Plot it through every matrix column
+    for point in range(matrix.shape[0]):
+        ax.plot(x_vector, matrix[point, :], color="coral")
+
+    # Saves it
+    fig.savefig(path)    
 
 
 def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
