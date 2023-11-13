@@ -21,7 +21,6 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH + 2 * DX, DX)
-    y_vector = np.arange(0, TOTAL_TIME, matrix.shape[1])
 
     # Plot it through every matrix column
     for time in range(matrix.shape[1]):
@@ -54,6 +53,35 @@ def generate_image_by_time(matrix, path="..\img\heat_1d_image_alternative.png"):
 
     # Saves it
     fig.savefig(path)    
+
+
+def generate_image_surface(matrix, path="..\img\heat_1d_image_surface.png"):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={"projection": "3d"})
+
+    ax.set_title("Heat equation", fontsize=15)
+    ax.set_zlabel("Temperature °C", fontsize=14)
+    ax.set_ylabel("X axis", fontsize=14)
+    ax.set_xlabel("Time", fontsize=14)
+    
+    # Arbitrary parameters for the axis limits
+    z_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    z_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, TOTAL_TIME], ylim=[0, LENGTH], zlim=[z_min, z_max + 20])
+
+    # Creates the X axis and TIME axis ticks
+    x_vector = np.linspace(0, TOTAL_TIME, matrix.shape[1])
+    y_vector = np.arange(0, LENGTH + 2 * DX, DX)
+
+    x_vector, y_vector = np.meshgrid(x_vector, y_vector)
+
+    # Plot it through every matrix column
+    surface = ax.plot_surface(x_vector, y_vector, matrix, cmap="coolwarm")
+    plt.colorbar(surface, shrink=0.25, aspect=5)
+
+    # Saves it
+    fig.savefig(path)
 
 
 def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
@@ -111,7 +139,8 @@ def plot_heatmap_2d(vector, time):
 
 def generate_gif_2d(temperature):
     def animate(k):
-        plot_heatmap_2d(temperature[k], k*DT_2D)
+        plot_heatmap_2d(temperature[k], k * DT_2D)
     
-    anim = ant.FuncAnimation(plt.figure(), animate, interval=1, frames=NUMBER_OF_STEPS_2D, repeat=False)
-    anim.save("..\img\heat_2d_animation.gif")
+    animation = ant.FuncAnimation(plt.figure(), animate, interval=1, frames=NUMBER_OF_STEPS_2D, repeat=False)
+
+    animation.save("..\img\heat_2d_animation.gif")
