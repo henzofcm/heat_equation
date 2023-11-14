@@ -177,7 +177,7 @@ def generate_gif_surface(matrix, path="..\img\heat_2d_animation_surface.gif"):
     def animate(frame):
         # Cleans the axis
         ax.cla()
-        ax.set_zlim(z_min, z_max)
+        ax.set_zlim(z_min, z_max + 20)
 
         # Plot it through every matrix column
         surface = ax.plot_surface(x_vector, y_vector, matrix[frame], cmap="inferno", vmin=z_min, vmax=z_max)

@@ -24,7 +24,7 @@ def create_difference_matrix():
 def create_vector(case="constant"):
     # Creates the vector according to case
     if case == "sin":
-        vector = np.arange(0, LENGTH_2D, DX_2D**2)
+        vector = np.arange(0, LENGTH_2D**2, DX_2D**2)
         vector *= vector
         vector = (np.sin(vector) + 1) * TEMPERATURE_START
     elif case == "linear":
@@ -63,7 +63,7 @@ def find_solution(diff_matrix, vector):
 if __name__ == "__main__":
     # Creates differences matrix and starting vector
     D = create_difference_matrix()
-    u = create_vector('linear')
+    u = create_vector()
     
     # Generates the final 2D image
     temperature = find_solution(D, u)
