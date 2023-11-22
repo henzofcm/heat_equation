@@ -70,14 +70,10 @@ def generate_solutions(diff_matrix, first_vector, dt):
     eigenvalues, eigenvectors, constants = prepare_solution(diff_matrix, first_vector)
 
     # Creates an empty matrix
-    output_matrix = np.empty((N + 2, 0))
+    output_matrix = np.empty((N, 0))
 
     # Loops trough all vectors
     for output_vector in find_solution(eigenvalues, eigenvectors, constants, dt):
-        # Just adds the start and the end parts temperatures
-        output_vector = np.append(TEMPERATURE_BEGIN, output_vector)
-        output_vector = np.append(output_vector, TEMPERATURE_END)
-        
         # Save it in a matrix
         output_matrix = np.hstack((output_matrix, output_vector[:, None]))
 

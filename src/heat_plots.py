@@ -20,7 +20,7 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
     ax.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
 
     # Creates the X axis ticks
-    x_vector = np.arange(0, LENGTH + 2 * DX, DX)
+    x_vector = np.arange(0, LENGTH, DX)
 
     # Plot it through every matrix column
     for time in range(matrix.shape[1]):
@@ -118,6 +118,8 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     # Generates the gif
     animation = ant.FuncAnimation(fig, animate, frames=matrix.shape[1], interval=200)
     writer = ant.PillowWriter(fps=25)
+
+    print(matrix.shape, x_vector.shape)
 
     # Saves it
     animation.save(path, writer=writer)
