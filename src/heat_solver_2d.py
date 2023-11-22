@@ -68,3 +68,4 @@ if __name__ == "__main__":
     # Generates the final 2D image
     temperature = find_solution(D, u)
     generate_gif_2d(temperature)
+    generate_gif_surface(temperature)

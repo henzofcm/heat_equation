@@ -13,7 +13,7 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
     ax.set_ylabel("Temperature °C", fontsize=14)
     ax.set_xlabel("X axis", fontsize=14)
     
-    # Arbitrary parameters for the axis limits
+    # Arbitrary parameters for the temp. axis limits
     y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
     y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
     
@@ -84,6 +84,42 @@ def generate_image_surface(matrix, path="..\img\heat_1d_image_surface.png"):
     fig.savefig(path)
 
 
+def generate_image_bench(matrix, error, path="..\img\heat_1d_image_error_percent.png"):
+    # Prepares the first axis plotting
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    ax1.set_title("Heat equation", fontsize=15)
+    ax1.set_ylabel("Temperature °C", fontsize=14)
+    ax1.set_xlabel("X axis", fontsize=14)
+
+    # Prepares the second axis plotting
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Abs. error", fontsize=14)
+    
+    # Arbitrary parameters for the temp. axis limits
+    y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax1.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
+
+    # Parameters for the error axis limits
+    y_max = error.max()
+    y_min = error.min()
+
+    ax2.set(xlim=[0, LENGTH], ylim=[y_min, y_max * 1.1])
+
+    # Creates the X axis ticks
+    x_vector = np.arange(0, LENGTH, DX)
+
+    # Plot it through every matrix column
+    for time in range(matrix.shape[1]):
+        ax1.plot(x_vector, matrix[:, time], color="teal")
+        ax2.plot(x_vector, error[:, time], color="orange")
+
+    # Saves it
+    fig.savefig(path)
+
+
 def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -124,28 +160,34 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     plt.close()
 
 
-def plot_heatmap_2d(grid, time):
+def plot_heatmap_2d(grid, time, axis):
     # Cleans the figure and sets the title
     plt.clf()
     plt.title(f"Temperature at t = {time:.2f}")
 
     # Plots it
-    fig, = plt.pcolormesh(grid, cmap=plt.cm.jet, vmin=0, vmax=100)
+    fig = plt.pcolormesh(axis, axis, grid, cmap=plt.cm.jet, vmin=0, vmax=100)
     plt.colorbar()
 
     return fig
 
 
 def generate_gif_2d(temperature, path="..\img\heat_2d_animation.gif"):
+    # Creates the X and Y axis vector
+    axis_vector = np.arange(0, LENGTH_2D, DX_2D)
+    
     # The update function used in the animation
     def animate(frame):
-        plot_heatmap_2d(temperature[frame], frame * DT_2D)
-    
+        nonlocal axis_vector
+
+        plot_heatmap_2d(temperature[frame], frame * DT_2D, axis_vector)
+
     # Does magic
     animation = ant.FuncAnimation(plt.figure(), animate, interval=1, frames=NUMBER_OF_STEPS_2D, repeat=False)
+    writer = ant.PillowWriter(fps=16)
 
     # Save
-    animation.save(path)
+    animation.save(path, writer=writer)
 
 
 def generate_gif_surface(matrix, path="..\img\heat_2d_animation_surface.gif"):

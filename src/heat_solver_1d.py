@@ -26,6 +26,9 @@ def create_first_vector(case="constant"):
     if case == "sin":
         vector = np.sin(np.arange(0, LENGTH, DX)) + 1
         vector *= TEMPERATURE_START / 2
+    elif case == "benchmark":
+        vector = np.sin(np.arange(0, LENGTH, DX) * np.pi / LENGTH)
+        vector *= TEMPERATURE_START
     elif case == "random":
         vector = np.random.randint(0, TEMPERATURE_START, N)
     elif case == "linear":
@@ -80,15 +83,46 @@ def generate_solutions(diff_matrix, first_vector, dt):
     return output_matrix
 
 
+def create_benchmark(dt):
+    # u(x, t) continuous eigenvalue (n = 1 here)
+    constant = np.pi / LENGTH
+
+    # The x axis points that we'll utilize, and a empty matrix
+    x_vector = np.arange(0, LENGTH, DX)
+    flow = np.sin(constant * x_vector)
+
+    output_matrix = np.empty((N, 0))
+
+    # Calculates the exact answer
+    for time in np.arange(0, TOTAL_TIME + dt, dt):
+        output_vector = np.exp(np.ones(N) * -(constant**2) * time) * flow
+        output_vector *= TEMPERATURE_START
+
+        output_matrix = np.hstack((output_matrix, output_vector[:, None]))
+
+    return output_matrix
+
+
+
 if __name__ == "__main__":
     # Creates differences matrix and starting vector
     D = create_difference_matrix()
     u = create_first_vector()
     
     # Generates the image with dt of 5s
-    out = generate_solutions(D, u, 5)
-    generate_image(out)
+    #out = generate_solutions(D, u, 5)
+    #generate_image(out)
 
     # Generates the gif with dt of 0.1s
-    out = generate_solutions(D, u, 0.1)
-    generate_gif(out)
+    #out = generate_solutions(D, u, 0.1)
+    #generate_gif(out)
+
+    # Creates the bench vector and its out solution
+    u = create_first_vector("benchmark")
+    out = generate_solutions(D, u, 5)
+
+    # Generates the correct solution
+    bench = create_benchmark(5)
+    error = np.abs(out - bench) / out
+
+    generate_image_bench(out, error)
