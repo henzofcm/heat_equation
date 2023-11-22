@@ -119,8 +119,6 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     animation = ant.FuncAnimation(fig, animate, frames=matrix.shape[1], interval=200)
     writer = ant.PillowWriter(fps=25)
 
-    print(matrix.shape, x_vector.shape)
-
     # Saves it
     animation.save(path, writer=writer)
     plt.close()
