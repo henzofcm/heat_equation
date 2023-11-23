@@ -110,19 +110,20 @@ if __name__ == "__main__":
     u = create_first_vector()
     
     # Generates the image with dt of 5s
-    #out = generate_solutions(D, u, 5)
-    #generate_image(out)
+    out = generate_solutions(D, u, 5)
+    generate_image(out)
 
     # Generates the gif with dt of 0.1s
-    #out = generate_solutions(D, u, 0.1)
-    #generate_gif(out)
+    out = generate_solutions(D, u, 0.1)
+    generate_gif(out)
+
 
     # Creates the bench vector and its out solution
     u = create_first_vector("benchmark")
-    out = generate_solutions(D, u, 5)
+    out = generate_solutions(D, u, 1)
 
     # Generates the correct solution
-    bench = create_benchmark(5)
-    error = np.abs(out - bench) / out
+    bench = create_benchmark(1)
+    error = np.abs(1 - bench/out) * 100
 
     generate_image_bench(out, error)
