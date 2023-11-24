@@ -88,7 +88,7 @@ def create_benchmark(dt):
     constant = np.pi / LENGTH
 
     # The x axis points that we'll utilize, and a empty matrix
-    x_vector = np.arange(0, LENGTH, DX)
+    x_vector = np.linspace(DX, LENGTH - DX, N)
     flow = np.sin(constant * x_vector)
 
     output_matrix = np.empty((N, 0))
@@ -122,8 +122,8 @@ if __name__ == "__main__":
     u = create_first_vector("benchmark")
     out = generate_solutions(D, u, 1)
 
-    # Generates the correct solution
+    # Generates the correct solution matrix and image
     bench = create_benchmark(1)
-    error = np.abs(1 - bench/out) * 100
+    error = np.abs(1 - out/bench) * 100
 
     generate_image_bench(out, error)

@@ -106,7 +106,7 @@ def generate_image_bench(matrix, error, path="..\img\heat_1d_image_error_percent
     y_max = error.max()
     y_min = error.min()
 
-    ax2.set(xlim=[0, LENGTH], ylim=[y_min, y_max * 1.1])
+    ax2.set(xlim=[0, LENGTH], ylim=[y_min, 2])
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH, DX)
