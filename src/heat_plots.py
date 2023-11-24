@@ -5,7 +5,7 @@ import matplotlib.animation as ant
 from heat_constants import *
 
 
-def generate_image(matrix, path="..\img\heat_1d_image.png"):
+def generate_image(matrix, path="..\img\heat_1d.png"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -30,7 +30,7 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
     fig.savefig(path)
 
 
-def generate_image_by_time(matrix, path="..\img\heat_1d_image_alternative.png"):
+def generate_image_by_time(matrix, path="..\img\heat_1d_alternative.png"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -55,7 +55,7 @@ def generate_image_by_time(matrix, path="..\img\heat_1d_image_alternative.png"):
     fig.savefig(path)    
 
 
-def generate_image_surface(matrix, path="..\img\heat_1d_image_surface.png"):
+def generate_image_surface(matrix, path="..\img\heat_1d_surface.png"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={"projection": "3d"})
 
@@ -84,7 +84,7 @@ def generate_image_surface(matrix, path="..\img\heat_1d_image_surface.png"):
     fig.savefig(path)
 
 
-def generate_image_bench(matrix, error, path="..\img\heat_1d_image_error_percent.png"):
+def generate_image_bench(matrix, error, path="..\img\heat_1d_error_percent.png"):
     # Prepares the first axis plotting
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
@@ -120,7 +120,7 @@ def generate_image_bench(matrix, error, path="..\img\heat_1d_image_error_percent
     fig.savefig(path)
 
 
-def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
+def generate_gif(matrix, path="..\img\heat_1d.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
     line, = ax.plot([], [], lw=2)
@@ -172,7 +172,7 @@ def plot_heatmap_2d(grid, time, axis):
     return fig
 
 
-def generate_gif_2d(temperature, path="..\img\heat_2d_animation.gif"):
+def generate_gif_2d(temperature, path="..\img\heat_2d.gif"):
     # Creates the X and Y axis vector
     axis_vector = np.arange(0, LENGTH_2D, DX_2D)
     
@@ -190,7 +190,7 @@ def generate_gif_2d(temperature, path="..\img\heat_2d_animation.gif"):
     animation.save(path, writer=writer)
 
 
-def generate_gif_surface(matrix, path="..\img\heat_2d_animation_surface.gif"):
+def generate_gif_surface(matrix, path="..\img\heat_2d_surface.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6),  subplot_kw={"projection": "3d"})
 
