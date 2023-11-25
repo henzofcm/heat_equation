@@ -88,8 +88,8 @@ def generate_image_bench(matrix, error, path="..\img\heat_1d_error_percent.png")
     # Prepares the first axis plotting
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    ax1.set_title("Heat equation", fontsize=15)
-    ax1.set_ylabel("Temperature °C", fontsize=14)
+    ax1.set_title("Relative Error", fontsize=15)
+    ax1.set_ylabel("Percentage", fontsize=14)
     ax1.set_xlabel("X axis", fontsize=14)
 
     # Prepares the second axis plotting

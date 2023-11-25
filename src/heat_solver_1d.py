@@ -17,6 +17,8 @@ def create_difference_matrix(case="open"):
     if case == "closed":
         matrix[0, 0] = -1
         matrix[-1, -1] = -1
+    elif case == "partial":
+        matrix[0, 0] = -1
 
     return matrix * (ALPHA / DX ** 2)
 

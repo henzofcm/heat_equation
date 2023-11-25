@@ -4,7 +4,7 @@ DX = 0.01
 N = int(LENGTH / DX)
 
 ### Defines the constants related to the TIME and the STARTING TEMPERATURE
-TOTAL_TIME = 60
+TOTAL_TIME = 40
 TEMPERATURE_START = 100
 
 ### Sets all the extra constants
