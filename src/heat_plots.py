@@ -5,7 +5,7 @@ import matplotlib.animation as ant
 from heat_constants import *
 
 
-def generate_image(matrix, path="..\img\heat_1d_image.png"):
+def generate_image(matrix, path="..\img\heat_1d.png"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -13,14 +13,14 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
     ax.set_ylabel("Temperature °C", fontsize=14)
     ax.set_xlabel("X axis", fontsize=14)
     
-    # Arbitrary parameters for the axis limits
+    # Arbitrary parameters for the temp. axis limits
     y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
     y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
     
     ax.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
 
     # Creates the X axis ticks
-    x_vector = np.arange(0, LENGTH + 2 * DX, DX)
+    x_vector = np.arange(0, LENGTH, DX)
 
     # Plot it through every matrix column
     for time in range(matrix.shape[1]):
@@ -30,7 +30,97 @@ def generate_image(matrix, path="..\img\heat_1d_image.png"):
     fig.savefig(path)
 
 
-def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
+def generate_image_by_time(matrix, path="..\img\heat_1d_alternative.png"):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.set_title("Specific points through time", fontsize=15)
+    ax.set_ylabel("Temperature °C", fontsize=14)
+    ax.set_xlabel("Time", fontsize=14)
+    
+    # Arbitrary parameters for the axis limits
+    y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, TOTAL_TIME], ylim=[y_min, y_max + 20])
+
+    # Creates the X axis ticks based on time
+    x_vector = np.linspace(0, TOTAL_TIME + 0.01, matrix.shape[1])
+
+    # Plot it through every matrix column
+    for point in range(matrix.shape[0]):
+        ax.plot(x_vector, matrix[point, :], color="coral")
+
+    # Saves it
+    fig.savefig(path)    
+
+
+def generate_image_surface(matrix, path="..\img\heat_1d_surface.png"):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={"projection": "3d"})
+
+    ax.set_title("Heat equation", fontsize=15)
+    ax.set_zlabel("Temperature °C", fontsize=14)
+    ax.set_ylabel("X axis", fontsize=14)
+    ax.set_xlabel("Time", fontsize=14)
+    
+    # Arbitrary parameters for the axis limits
+    z_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    z_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, TOTAL_TIME], ylim=[0, LENGTH], zlim=[z_min, z_max + 20])
+
+    # Creates the X axis and TIME axis ticks
+    x_vector = np.linspace(0, TOTAL_TIME, matrix.shape[1])
+    y_vector = np.arange(0, LENGTH, DX)
+
+    x_vector, y_vector = np.meshgrid(x_vector, y_vector)
+
+    # Plot it through every matrix column
+    surface = ax.plot_surface(x_vector, y_vector, matrix, cmap="inferno")
+    plt.colorbar(surface, shrink=0.25, aspect=5)
+
+    # Saves it
+    fig.savefig(path)
+
+
+def generate_image_bench(matrix, error, path="..\img\heat_1d_error_percent.png"):
+    # Prepares the first axis plotting
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    ax1.set_title("Relative Error", fontsize=15)
+    ax1.set_ylabel("Percentage", fontsize=14)
+    ax1.set_xlabel("X axis", fontsize=14)
+
+    # Prepares the second axis plotting
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Abs. error", fontsize=14)
+    
+    # Arbitrary parameters for the temp. axis limits
+    y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    y_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax1.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
+
+    # Parameters for the error axis limits
+    y_max = error.max()
+    y_min = error.min()
+
+    ax2.set(xlim=[0, LENGTH], ylim=[y_min, 2])
+
+    # Creates the X axis ticks
+    x_vector = np.arange(0, LENGTH, DX)
+
+    # Plot it through every matrix column
+    for time in range(matrix.shape[1]):
+        ax1.plot(x_vector, matrix[:, time], color="teal")
+        ax2.plot(x_vector, error[:, time], color="orange")
+
+    # Saves it
+    fig.savefig(path)
+
+
+def generate_gif(matrix, path="..\gif\heat_1d.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
     line, = ax.plot([], [], lw=2)
@@ -46,7 +136,7 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
     ax.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 20])
 
     # Creates the X axis ticks
-    x_vector = np.arange(0, LENGTH + 2 * DX, DX)
+    x_vector = np.arange(0, LENGTH, DX)
 
     # Creates the text to account for time
     time_template = "time = %.1f s"
@@ -63,6 +153,82 @@ def generate_gif(matrix, path="..\img\heat_1d_animation.gif"):
 
     # Generates the gif
     animation = ant.FuncAnimation(fig, animate, frames=matrix.shape[1], interval=200)
+    writer = ant.PillowWriter(fps=25)
+
+    # Saves it
+    animation.save(path, writer=writer)
+    plt.close()
+
+
+def plot_heatmap_2d(grid, time, axis):
+    # Cleans the figure and sets the title
+    plt.clf()
+    plt.title(f"Temperature at t = {time:.2f}")
+
+    # Plots it
+    fig = plt.pcolormesh(axis, axis, grid, cmap=plt.cm.jet, vmin=0, vmax=100)
+    plt.colorbar()
+
+    return fig
+
+
+def generate_gif_2d(temperature, path="..\gif\heat_2d.gif"):
+    # Creates the X and Y axis vector
+    axis_vector = np.arange(0, LENGTH_2D, DX_2D)
+    
+    # The update function used in the animation
+    def animate(frame):
+        nonlocal axis_vector
+
+        plot_heatmap_2d(temperature[frame], frame * DT_2D, axis_vector)
+
+    # Does magic
+    animation = ant.FuncAnimation(plt.figure(), animate, interval=1, frames=NUMBER_OF_STEPS_2D, repeat=False)
+    writer = ant.PillowWriter(fps=16)
+
+    # Save
+    animation.save(path, writer=writer)
+
+
+def generate_gif_surface(matrix, path="..\gif\heat_2d_surface.gif"):
+    # Prepares the plotting
+    fig, ax = plt.subplots(figsize=(10, 6),  subplot_kw={"projection": "3d"})
+
+    ax.set_title("Heat equation", fontsize=15)
+    ax.set_zlabel("Temperature °C", fontsize=14)
+    ax.set_ylabel("Y axis", fontsize=14)
+    ax.set_xlabel("X axis", fontsize=14)
+    
+    # Arbitrary parameters for the axis limits
+    z_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    z_min = min(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
+    
+    ax.set(xlim=[0, LENGTH_2D], ylim=[0, LENGTH_2D], zlim=[z_min, z_max + 20])
+
+    # Creates the X and Y axis ticks
+    x_vector = np.arange(0, LENGTH_2D, DX_2D)
+    y_vector = np.arange(0, LENGTH_2D, DX_2D)
+
+    x_vector, y_vector = np.meshgrid(x_vector, y_vector)
+
+    # Creates the text to account for time
+    time_template = "time = %.1f s"
+    time_text = ax.text2D(0.05, 0.95, "", transform=ax.transAxes)
+
+    # Function to update the graph plot, used in the animation
+    def animate(frame):
+        # Cleans the axis
+        ax.cla()
+        ax.set_zlim(z_min, z_max + 20)
+
+        # Plot it through every matrix column
+        surface = ax.plot_surface(x_vector, y_vector, matrix[frame], cmap="inferno", vmin=z_min, vmax=z_max)
+        time_text.set_text(time_template % (frame * DT_2D))
+
+        return surface, time_text
+
+    # Generates the gif
+    animation = ant.FuncAnimation(fig, animate, frames=matrix.shape[0], interval=300)
     writer = ant.PillowWriter(fps=25)
 
     # Saves it

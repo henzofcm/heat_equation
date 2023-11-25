@@ -17,6 +17,8 @@ def create_difference_matrix(case="open"):
     if case == "closed":
         matrix[0, 0] = -1
         matrix[-1, -1] = -1
+    elif case == "partial":
+        matrix[0, 0] = -1
 
     return matrix * (ALPHA / DX ** 2)
 
@@ -26,6 +28,9 @@ def create_first_vector(case="constant"):
     if case == "sin":
         vector = np.sin(np.arange(0, LENGTH, DX)) + 1
         vector *= TEMPERATURE_START / 2
+    elif case == "benchmark":
+        vector = np.sin(np.arange(0, LENGTH, DX) * np.pi / LENGTH)
+        vector *= TEMPERATURE_START
     elif case == "random":
         vector = np.random.randint(0, TEMPERATURE_START, N)
     elif case == "linear":
@@ -70,18 +75,35 @@ def generate_solutions(diff_matrix, first_vector, dt):
     eigenvalues, eigenvectors, constants = prepare_solution(diff_matrix, first_vector)
 
     # Creates an empty matrix
-    output_matrix = np.empty((N + 2, 0))
+    output_matrix = np.empty((N, 0))
 
     # Loops trough all vectors
     for output_vector in find_solution(eigenvalues, eigenvectors, constants, dt):
-        # Just adds the start and the end parts temperatures
-        output_vector = np.append(TEMPERATURE_BEGIN, output_vector)
-        output_vector = np.append(output_vector, TEMPERATURE_END)
-        
         # Save it in a matrix
         output_matrix = np.hstack((output_matrix, output_vector[:, None]))
 
     return output_matrix
+
+
+def create_benchmark(dt):
+    # u(x, t) continuous eigenvalue (n = 1 here)
+    constant = np.pi / LENGTH
+
+    # The x axis points that we'll utilize, and a empty matrix
+    x_vector = np.linspace(DX, LENGTH - DX, N)
+    flow = np.sin(constant * x_vector)
+
+    output_matrix = np.empty((N, 0))
+
+    # Calculates the exact answer
+    for time in np.arange(0, TOTAL_TIME + dt, dt):
+        output_vector = np.exp(np.ones(N) * -(constant**2) * time) * flow
+        output_vector *= TEMPERATURE_START
+
+        output_matrix = np.hstack((output_matrix, output_vector[:, None]))
+
+    return output_matrix
+
 
 
 if __name__ == "__main__":
@@ -96,3 +118,14 @@ if __name__ == "__main__":
     # Generates the gif with dt of 0.1s
     out = generate_solutions(D, u, 0.1)
     generate_gif(out)
+
+
+    # Creates the bench vector and its out solution
+    u = create_first_vector("benchmark")
+    out = generate_solutions(D, u, 1)
+
+    # Generates the correct solution matrix and image
+    bench = create_benchmark(1)
+    error = np.abs(1 - out/bench) * 100
+
+    generate_image_bench(out, error)
