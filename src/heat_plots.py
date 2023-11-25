@@ -120,7 +120,7 @@ def generate_image_bench(matrix, error, path="..\img\heat_1d_error_percent.png")
     fig.savefig(path)
 
 
-def generate_gif(matrix, path="..\img\heat_1d.gif"):
+def generate_gif(matrix, path="..\gif\heat_1d.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6))
     line, = ax.plot([], [], lw=2)
@@ -172,7 +172,7 @@ def plot_heatmap_2d(grid, time, axis):
     return fig
 
 
-def generate_gif_2d(temperature, path="..\img\heat_2d.gif"):
+def generate_gif_2d(temperature, path="..\gif\heat_2d.gif"):
     # Creates the X and Y axis vector
     axis_vector = np.arange(0, LENGTH_2D, DX_2D)
     
@@ -190,7 +190,7 @@ def generate_gif_2d(temperature, path="..\img\heat_2d.gif"):
     animation.save(path, writer=writer)
 
 
-def generate_gif_surface(matrix, path="..\img\heat_2d_surface.gif"):
+def generate_gif_surface(matrix, path="..\gif\heat_2d_surface.gif"):
     # Prepares the plotting
     fig, ax = plt.subplots(figsize=(10, 6),  subplot_kw={"projection": "3d"})
 
