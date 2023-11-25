@@ -1,6 +1,7 @@
 # Let's solve the heat equation with Linear Algebra!
 
-![](./img/heat_1d_surface.png)
+![](./img/heat_1d_surface.png) |
+:-----------------------------:|
 
 As this is part of my Linear Algebra courses final exam, I try to use most of the techniques learned so far by solving numerically the one and two-dimensional heat equations using python.
 Basically we used only the difference matrix and its eigenvalues to resolve the PDE, wich is just the method of lines used by Gilbert Strang in his books.
@@ -33,26 +34,26 @@ generate_gif(out, "../gif/heat_1d_linear.gif")  # Save it anywhere you want, rel
 
 Below are the coolest animations we produced.
 
-![](./gif/heat_1d_linear.gif)     | ![](./gif/heat_1d_sin.gif)
-:-------------------------:|:-------------------------:
+![](./gif/heat_1d_linear.gif) | ![](./gif/heat_1d_sin.gif)
+:----------------------------:|:-------------------------:
 1D linear with open borders   |  1D sin with open borders
 
-![](./gif/heat_2d.gif)     | ![](./gif/heat_2d_surface.gif)
-:-------------------------:|:-------------------------:
-2D heatmap with f(x)=100   |  2D surface of the same case
+![](./gif/heat_2d.gif)   | ![](./gif/heat_2d_surface.gif)
+:-----------------------:|:------------------------------:
+2D heatmap with f(x)=100 | 2D surface of the same case
 
 Now some partial and closed boundaries.
 
 ![](./extras/heat_1d_partial.gif) | ![](./extras/heat_1d_closed_sin.gif)
-:-------------------------:|:-------------------------:
+:--------------------------------:|:-------------------------:
 1D constant case closed partially only at x=10 | 1D sin closed at both sides
 
 ![](./extras/heat_1d_closed_surface.png) | ![](./gif/heat_2d_surface_linear.gif)
-:-------------------------:|:-------------------------:
+:---------------------------------------:|:--------------------------------------:
 1D constant case plotted by time | 2D linear case with open boundaries
 
 And now the error visualizations.
 
 ![](./img/heat_1d_error_percent_dx=0.005.png) | ![](./gif/heat_1d_error.gif)
-:-------------------------:|:-------------------------:
+:--------------------------------------------:|:----------------------------:
 Erros and temp. when dx=0.005 and dt=1 | Relative error changes through time
