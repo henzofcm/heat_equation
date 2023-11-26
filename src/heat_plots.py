@@ -88,13 +88,13 @@ def generate_image_bench(matrix, error, path="..\img\heat_1d_error_percent.png")
     # Prepares the first axis plotting
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    ax1.set_title("Relative Error", fontsize=15)
-    ax1.set_ylabel("Percentage", fontsize=14)
+    ax1.set_title("Abs. Error", fontsize=15)
+    ax1.set_ylabel("Temperature °C", fontsize=14)
     ax1.set_xlabel("X axis", fontsize=14)
 
     # Prepares the second axis plotting
     ax2 = ax1.twinx()
-    ax2.set_ylabel("Abs. error", fontsize=14)
+    ax2.set_ylabel("Percentage", fontsize=14)
     
     # Arbitrary parameters for the temp. axis limits
     y_max = max(TEMPERATURE_START, TEMPERATURE_BEGIN, TEMPERATURE_END)
@@ -106,7 +106,7 @@ def generate_image_bench(matrix, error, path="..\img\heat_1d_error_percent.png")
     y_max = error.max()
     y_min = error.min()
 
-    ax2.set(xlim=[0, LENGTH], ylim=[y_min, 2])
+    ax2.set(xlim=[0, LENGTH], ylim=[y_min, y_max + 1])
 
     # Creates the X axis ticks
     x_vector = np.arange(0, LENGTH, DX)
